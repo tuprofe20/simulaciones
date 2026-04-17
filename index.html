@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RM Lab - Relaciones de Tiempo y Parentesco</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+        
+        body { font-family: 'Poppins', sans-serif; background-color: #f0f4f8; }
+        .card { transition: all 0.3s ease; border-radius: 1.5rem; }
+        .card:hover { transform: translateY(-5px); }
+        .day-box { width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-weight: bold; cursor: pointer; }
+        .active-day { background-color: #3b82f6 !important; color: white; transform: scale(1.1); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.5); }
+        .family-member { transition: all 0.2s; }
+        .family-member:hover { background-color: #e0e7ff; }
+        .tab-btn.active { border-bottom: 4px solid #3b82f6; color: #3b82f6; }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div class="max-w-5xl mx-auto">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-extrabold text-blue-800"><i class="fa-solid fa-clock-rotate-left mr-3"></i>RM Lab: Tiempo y Familia</h1>
+            <p class="text-gray-600 mt-2 text-lg">Aprendizaje Interactivo - Ciclo Anual 2026</p>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <div class="flex justify-center space-x-4 mb-8 bg-white p-2 rounded-2xl shadow-sm">
+            <button onclick="showTab('tiempo')" id="tab-tiempo" class="tab-btn active px-6 py-2 font-semibold transition">Relación de Tiempo</button>
+            <button onclick="showTab('familia')" id="tab-familia" class="tab-btn px-6 py-2 font-semibold transition">Parentesco Mínimo</button>
+            <button onclick="showTab('desafio')" id="tab-desafio" class="tab-btn px-6 py-2 font-semibold transition">Desafío del PDF</button>
+        </div>
+
+        <!-- CONTENT: RELACIÓN DE TIEMPO -->
+        <div id="content-tiempo" class="space-y-6">
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Simulador Visual -->
+                <div class="card bg-white p-6 shadow-xl">
+                    <h2 class="text-xl font-bold mb-4 text-blue-600 border-b pb-2">Línea del Tiempo Numérica</h2>
+                    <p class="text-sm text-gray-500 mb-6">Haz clic en los términos para sumar sus valores matemáticos:</p>
+                    
+                    <div class="flex flex-wrap gap-3 justify-center mb-8">
+                        <button onclick="addTime(-2, 'Anteayer')" class="bg-red-100 text-red-700 px-4 py-2 rounded-full hover:bg-red-200">-2 Anteayer</button>
+                        <button onclick="addTime(-1, 'Ayer')" class="bg-orange-100 text-orange-700 px-4 py-2 rounded-full hover:bg-orange-200">-1 Ayer</button>
+                        <button onclick="addTime(0, 'Hoy')" class="bg-green-100 text-green-700 px-4 py-2 rounded-full hover:bg-green-200">0 Hoy</button>
+                        <button onclick="addTime(1, 'Mañana')" class="bg-blue-100 text-blue-700 px-4 py-2 rounded-full hover:bg-blue-200">+1 Mañana</button>
+                        <button onclick="addTime(2, 'Pasado Mañana')" class="bg-purple-100 text-purple-700 px-4 py-2 rounded-full hover:bg-purple-200">+2 P. Mañana</button>
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded-xl text-center border-2 border-dashed border-gray-200">
+                        <div class="text-gray-400 mb-1 font-mono tracking-widest uppercase text-xs">Operación</div>
+                        <div id="time-operation" class="text-2xl font-bold text-gray-700">0</div>
+                        <div id="time-tags" class="mt-2 text-xs text-gray-400 italic">Hoy</div>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-center">
+                        <button onclick="resetTime()" class="text-sm text-red-500 underline">Reiniciar cálculo</button>
+                    </div>
+                </div>
+
+                <!-- Calendario de Referencia -->
+                <div class="card bg-white p-6 shadow-xl">
+                    <h2 class="text-xl font-bold mb-4 text-blue-600 border-b pb-2">Selector de Día de Hoy</h2>
+                    <div class="grid grid-cols-7 gap-2 mb-6">
+                        <div class="text-xs text-center font-bold text-gray-400">LU</div>
+                        <div class="text-xs text-center font-bold text-gray-400">MA</div>
+                        <div class="text-xs text-center font-bold text-gray-400">MI</div>
+                        <div class="text-xs text-center font-bold text-gray-400">JU</div>
+                        <div class="text-xs text-center font-bold text-gray-400">VI</div>
+                        <div class="text-xs text-center font-bold text-gray-400">SA</div>
+                        <div class="text-xs text-center font-bold text-gray-400">DO</div>
+                        
+                        <div onclick="setReferenceDay(1)" class="day-box bg-gray-100" id="day-1">L</div>
+                        <div onclick="setReferenceDay(2)" class="day-box bg-gray-100" id="day-2">M</div>
+                        <div onclick="setReferenceDay(3)" class="day-box bg-gray-100" id="day-3">M</div>
+                        <div onclick="setReferenceDay(4)" class="day-box bg-gray-100 active-day" id="day-4">J</div>
+                        <div onclick="setReferenceDay(5)" class="day-box bg-gray-100" id="day-5">V</div>
+                        <div onclick="setReferenceDay(6)" class="day-box bg-gray-100" id="day-6">S</div>
+                        <div onclick="setReferenceDay(0)" class="day-box bg-gray-100" id="day-0">D</div>
+                    </div>
+                    
+                    <div class="text-center p-4 bg-blue-50 rounded-2xl">
+                        <span class="text-blue-800 block text-sm mb-1 uppercase tracking-tight font-bold">Resultado Final:</span>
+                        <span id="final-day-text" class="text-4xl font-black text-blue-600">JUEVES</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTENT: PARENTESCO MÍNIMO -->
+        <div id="content-familia" class="hidden space-y-6">
+            <div class="card bg-white p-8 shadow-xl text-center">
+                <h2 class="text-2xl font-bold mb-6 text-indigo-600">Simulador de Roles Familiares</h2>
+                <p class="text-gray-600 mb-8 max-w-2xl mx-auto">
+                    ¿Sabías que una persona puede ser <strong>padre e hijo</strong> al mismo tiempo? 
+                    Este concepto es clave para resolver problemas de "cantidad mínima".
+                </p>
+
+                <div class="flex flex-col md:flex-row items-center justify-around gap-8">
+                    <!-- Person 1 -->
+                    <div class="flex flex-col items-center">
+                        <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center text-4xl shadow-inner border-4 border-white">👴</div>
+                        <div class="mt-4 flex flex-col gap-1">
+                            <span class="bg-blue-600 text-white text-xs px-2 py-1 rounded">Abuelo</span>
+                            <span class="bg-blue-400 text-white text-xs px-2 py-1 rounded">Padre</span>
+                        </div>
+                    </div>
+                    
+                    <i class="fa-solid fa-arrow-right text-gray-300 hidden md:block text-2xl"></i>
+                    
+                    <!-- Person 2 -->
+                    <div class="flex flex-col items-center">
+                        <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center text-4xl shadow-inner border-4 border-white">👨</div>
+                        <div class="mt-4 flex flex-col gap-1">
+                            <span class="bg-green-600 text-white text-xs px-2 py-1 rounded">Padre</span>
+                            <span class="bg-green-400 text-white text-xs px-2 py-1 rounded">Hijo</span>
+                            <span class="bg-green-300 text-white text-xs px-2 py-1 rounded">Tío</span>
+                        </div>
+                    </div>
+
+                    <i class="fa-solid fa-arrow-right text-gray-300 hidden md:block text-2xl"></i>
+
+                    <!-- Person 3 -->
+                    <div class="flex flex-col items-center">
+                        <div class="w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center text-4xl shadow-inner border-4 border-white">👦</div>
+                        <div class="mt-4 flex flex-col gap-1">
+                            <span class="bg-yellow-600 text-white text-xs px-2 py-1 rounded">Hijo</span>
+                            <span class="bg-yellow-400 text-white text-xs px-2 py-1 rounded">Nieto</span>
+                            <span class="bg-yellow-300 text-white text-xs px-2 py-1 rounded">Sobrino</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-12 p-6 bg-indigo-50 rounded-2xl border-l-8 border-indigo-500 text-left">
+                    <h3 class="font-bold text-indigo-900 mb-2">Caso: 2 padres y 2 hijos</h3>
+                    <p class="text-indigo-800">Como ves arriba, solo necesitamos <strong>3 personas</strong> para cubrir todos esos roles. ¡Ahorrar personas es la clave!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTENT: DESAFÍOS -->
+        <div id="content-desafio" class="hidden space-y-6">
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Pregunta -->
+                <div class="card bg-white p-6 shadow-xl border-t-4 border-yellow-400">
+                    <div class="flex justify-between items-center mb-4">
+                        <span id="q-category" class="text-xs font-bold uppercase bg-yellow-100 text-yellow-700 px-2 py-1 rounded">Reto RM</span>
+                        <span id="q-counter" class="text-xs text-gray-400 font-bold">Pregunta 1 de 5</span>
+                    </div>
+                    <p id="q-text" class="text-lg font-semibold text-gray-800 mb-6">Cargando desafío...</p>
+                    
+                    <div id="q-options" class="space-y-3">
+                        <!-- Options will be injected here -->
+                    </div>
+                </div>
+
+                <!-- Pizarra de Resolución -->
+                <div class="card bg-gray-800 p-6 shadow-xl text-white relative">
+                    <div class="absolute top-2 right-4 text-xs font-mono text-gray-500">Pizarra Virtual</div>
+                    <h3 class="text-lg font-bold mb-4 text-green-400 underline decoration-dotted">Pasos Lógicos</h3>
+                    <div id="q-hint" class="font-mono text-sm leading-relaxed space-y-2">
+                        <!-- Step-by-step logic here -->
+                    </div>
+                    
+                    <div id="feedback" class="hidden mt-6 p-3 rounded text-center font-bold"></div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center">
+                <button onclick="nextQuestion()" class="bg-blue-600 text-white px-8 py-3 rounded-full font-bold shadow-lg hover:bg-blue-700 transition transform hover:scale-105">
+                    Siguiente Desafío <i class="fa-solid fa-chevron-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer Info -->
+        <footer class="mt-12 text-center text-gray-500 text-sm">
+            <p>© 2026 TuProfe20 - Aula 3A - Relaciones de Tiempo y Parentesco</p>
+        </footer>
+    </div>
+
+    <script>
+        // --- DATA & STATE ---
+        let currentTimeValue = 0;
+        let timeTags = [];
+        let referenceDay = 4; // Jueves por defecto (0=Dom, 1=Lun...)
+        const dayNames = ["DOMINGO", "LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES", "SÁBADO"];
+
+        const questions = [
+            {
+                category: "VARIACIÓN DE DÍAS",
+                text: "Si el anteayer de mañana de hace 3 días fue jueves, ¿qué día fue el siguiente día de hace 132 días?",
+                options: ["Lunes", "Martes", "Miércoles", "Jueves"],
+                answer: 3, // Jueves
+                hint: [
+                    "1. Traducimos: Anteayer(-2), Mañana(+1), Hace 3 días(-3)",
+                    "2. Suma: -2 + 1 - 3 = -4",
+                    "3. Dato: Hace 4 días fue Jueves. Entonces hoy es Lunes (+4 días).",
+                    "4. Pregunta: Siguiente día(+1) de hace 132 días(-132).",
+                    "5. Total: +1 - 132 = -131.",
+                    "6. -131 es múltiplo de 7 (131/7 = 18 semanas y restan 5 días).",
+                    "7. -131 días desde Lunes = Jueves."
+                ]
+            },
+            {
+                category: "PARENTESCO MÍNIMO",
+                text: "En una fiesta están presentes los esposos González con sus 7 hijas y cada una tiene un hermano. ¿Cuál es la menor cantidad de personas reunidas?",
+                options: ["16 personas", "9 personas", "10 personas", "15 personas"],
+                answer: 2, // 10 personas
+                hint: [
+                    "1. Esposos González: 2 personas (Papá y Mamá).",
+                    "2. 7 hijas: 7 personas.",
+                    "3. Cada una tiene 'un' hermano: El hermano es el mismo para todas.",
+                    "4. Hermanos: 1 persona.",
+                    "5. Total: 2 + 7 + 1 = 10 personas."
+                ]
+            },
+            {
+                category: "RELACIÓN FAMILIAR",
+                text: "¿Qué es de mí, la hermana del hijo del hermano de mi padre?",
+                options: ["Mi tía", "Mi prima", "Mi sobrina", "Mi hermana"],
+                answer: 1, // Mi prima
+                hint: [
+                    "1. Trabajamos de atrás hacia adelante.",
+                    "2. Hermano de mi padre: Mi Tío.",
+                    "3. Hijo del hermano de mi padre: El hijo de mi tío = Mi Primo.",
+                    "4. Hermana de mi primo: Mi Prima."
+                ]
+            },
+            {
+                category: "CONTEO MÍNIMO",
+                text: "En una reunión hay: un abuelo, un nieto, dos padres y dos hijos. ¿Cuántas personas hay como mínimo?",
+                options: ["6", "4", "3", "5"],
+                answer: 2, // 3
+                hint: [
+                    "1. Buscamos roles compartidos.",
+                    "2. Persona A: Es Abuelo y Padre.",
+                    "3. Persona B: Es Padre e Hijo.",
+                    "4. Persona C: Es Hijo y Nieto.",
+                    "5. Resultado: 3 personas."
+                ]
+            }
+        ];
+
+        let currentQIndex = 0;
+
+        // --- TIME LOGIC ---
+        function addTime(val, tag) {
+            currentTimeValue += val;
+            timeTags.push((val >= 0 ? "+" + val : val) + " " + tag);
+            updateTimeDisplay();
+        }
+
+        function resetTime() {
+            currentTimeValue = 0;
+            timeTags = [];
+            updateTimeDisplay();
+        }
+
+        function updateTimeDisplay() {
+            document.getElementById('time-operation').innerText = (currentTimeValue >= 0 ? "+" + currentTimeValue : currentTimeValue);
+            document.getElementById('time-tags').innerText = timeTags.length > 0 ? timeTags.join(", ") : "Hoy";
+            calculateFinalDay();
+        }
+
+        function setReferenceDay(d) {
+            referenceDay = d;
+            // Update UI
+            for (let i = 0; i < 7; i++) {
+                document.getElementById('day-' + i).classList.remove('active-day');
+            }
+            document.getElementById('day-' + d).classList.add('active-day');
+            calculateFinalDay();
+        }
+
+        function calculateFinalDay() {
+            // Formula: (Current Day + Variation) % 7
+            // JS % can be negative, so we adjust
+            let resultIndex = (referenceDay + currentTimeValue) % 7;
+            if (resultIndex < 0) resultIndex += 7;
+            document.getElementById('final-day-text').innerText = dayNames[resultIndex];
+        }
+
+        // --- UI TABS ---
+        function showTab(tab) {
+            document.getElementById('content-tiempo').classList.add('hidden');
+            document.getElementById('content-familia').classList.add('hidden');
+            document.getElementById('content-desafio').classList.add('hidden');
+            
+            document.getElementById('tab-tiempo').classList.remove('active');
+            document.getElementById('tab-familia').classList.remove('active');
+            document.getElementById('tab-desafio').classList.remove('active');
+
+            document.getElementById('content-' + tab).classList.remove('hidden');
+            document.getElementById('tab-' + tab).classList.add('active');
+
+            if(tab === 'desafio') loadQuestion();
+        }
+
+        // --- QUIZ LOGIC ---
+        function loadQuestion() {
+            const q = questions[currentQIndex];
+            document.getElementById('q-category').innerText = q.category;
+            document.getElementById('q-counter').innerText = `Pregunta ${currentQIndex + 1} de ${questions.length}`;
+            document.getElementById('q-text').innerText = q.text;
+            document.getElementById('feedback').classList.add('hidden');
+            
+            // Clean hint
+            document.getElementById('q-hint').innerHTML = `<p class="text-gray-500 italic">Analiza el problema... pulsa una opción para ver la lógica.</p>`;
+
+            const optionsDiv = document.getElementById('q-options');
+            optionsDiv.innerHTML = '';
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-3 border-2 border-gray-100 rounded-xl hover:bg-gray-50 hover:border-blue-300 transition font-medium text-gray-700";
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(idx);
+                optionsDiv.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(idx) {
+            const q = questions[currentQIndex];
+            const feedback = document.getElementById('feedback');
+            const hintDiv = document.getElementById('q-hint');
+            
+            feedback.classList.remove('hidden');
+            
+            if (idx === q.answer) {
+                feedback.className = "mt-6 p-3 rounded text-center font-bold bg-green-100 text-green-700";
+                feedback.innerText = "¡CORRECTO! 🎯";
+            } else {
+                feedback.className = "mt-6 p-3 rounded text-center font-bold bg-red-100 text-red-700";
+                feedback.innerText = "Sigue intentándolo... 🤔";
+            }
+
+            // Show logic
+            hintDiv.innerHTML = q.hint.map(h => `<div class="mb-2"><i class="fa-solid fa-check text-green-400 mr-2"></i> ${h}</div>`).join('');
+        }
+
+        function nextQuestion() {
+            currentQIndex = (currentQIndex + 1) % questions.length;
+            loadQuestion();
+        }
+
+        // Initialize
+        updateTimeDisplay();
+    </script>
+</body>
+</html>
